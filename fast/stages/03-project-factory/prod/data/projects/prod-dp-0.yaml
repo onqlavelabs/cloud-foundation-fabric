@@ -28,13 +28,42 @@ group_iam:
   onqlave-devops@onqlave.com:
     - roles/compute.admin
     - roles/resourcemanager.projectIamAdmin
-    # - roles/resourcemanager.projectCreator
+    - roles/cloudsql.admin
+    - roles/container.admin
+    - roles/storage.admin
+    - roles/iam.serviceAccountAdmin
+    - roles/serviceusage.serviceUsageAdmin
+    - roles/artifactregistry.admin
+    - roles/iap.admin
+    - roles/iap.tunnelResourceAccessor
+    - roles/iam.workloadIdentityPoolAdmin
+    - roles/iam.serviceAccountUser
+    - roles/pubsub.admin
+    - roles/redis.admin
+    - roles/cloudkms.admin
+    - roles/containeranalysis.admin
+    - roles/containersecurity.viewer
+    - roles/monitoring.admin
+
+  onqlave-developers@onqlave.com:
+    - roles/iam.serviceAccountUser
+    - roles/iap.tunnelResourceAccessor
+    - roles/compute.instanceAdmin
+    - roles/container.developer
+    - roles/firebase.developAdmin
+    - roles/pubsub.editor
 
 # [opt] Authoritative IAM bindings in role => [principals] format
 # Generally used to grant roles to service accounts external to the project
-# iam:
-#   roles/compute.admin:
-#     - serviceAccount:service-account
+iam:
+  roles/iam.serviceAccountUser:
+    - serviceAccount:onqlave-prod-dp-bastion-0@onqlave-prod-dp-0.iam.gserviceaccount.com
+  roles/iap.tunnelResourceAccessor:
+    - serviceAccount:onqlave-prod-dp-bastion-0@onqlave-prod-dp-0.iam.gserviceaccount.com
+  roles/container.admin:
+    - serviceAccount:onqlave-prod-dp-bastion-0@onqlave-prod-dp-0.iam.gserviceaccount.com
+  roles/compute.instanceAdmin:
+    - serviceAccount:onqlave-prod-dp-bastion-0@onqlave-prod-dp-0.iam.gserviceaccount.com
 
 # [opt] Service robots and keys they will be assigned as cryptoKeyEncrypterDecrypter
 # in service => [keys] format
@@ -55,17 +84,22 @@ org_policies:
   #   allow:
   #     values:
   #       - projects/onqlave-dev-iac-core-0
-  constraints/compute.vmExternalIpAccess:
-    deny:
-      all: true
+  constraints/compute.restrictLoadBalancerCreationForTypes:
+    allow:
+      values:
+        - EXTERNAL_HTTP_HTTPS
+        - INTERNAL_HTTP_HTTPS
+        - INTERNAL_TCP_UDP
+        - REGIONAL_INTERNAL_MANAGED_TCP_PROXY
+        - in:INTERNAL
 
 # [opt] Service account to create for the project and their roles on the project
 # in name => [roles] format
-service_accounts:
-  onqlave-cluster-manager:
-    - roles/compute.viewer
-    - roles/cloudkms.admin
-    - roles/container.developer
+#service_accounts:
+#  onqlave-cluster-manager:
+#    - roles/compute.viewer
+#    - roles/cloudkms.admin
+#    - roles/container.developer
     
 #   my-service-account:
 #     - roles/compute.admin
@@ -75,6 +109,21 @@ services:
   - storage.googleapis.com
   - stackdriver.googleapis.com
   - compute.googleapis.com
+  - iap.googleapis.com
+  - oslogin.googleapis.com
+  - storage-api.googleapis.com
+  - beyondcorp.googleapis.com
+  - artifactregistry.googleapis.com
+  - iamcredentials.googleapis.com
+  - serviceusage.googleapis.com
+  - networkmanagement.googleapis.com
+  - cloudresourcemanager.googleapis.com
+  - container.googleapis.com
+  - servicenetworking.googleapis.com
+  - cloudkms.googleapis.com
+  - sqladmin.googleapis.com # Used by Cloud-SQL-Proxy into GKE.
+  - containersecurity.googleapis.com # Used by Container Vulnerability Scanning
+  - containerscanning.googleapis.com  # Used by Artifact Registry - Container Scanning
 
 # [opt] Roles to assign to the service identities in service => [roles] format
 service_identities_iam:
@@ -91,7 +140,7 @@ vpc:
     enable_host_service_agent: true
 
     # Grants  "roles/compute.securityAdmin" to the container robot if set
-    enable_security_admin: false
+    enable_security_admin: true
 
   # Host project the project will be service project of
   host_project: onqlave-prod-net-spoke-0
@@ -99,5 +148,5 @@ vpc:
   # [opt] Subnets in the host project where principals will be granted networkUser
   # in region/subnet-name => [principals]
   subnets_iam:
-    australia-southeast1/prod-default-ase1:
+    australia-southeast1/prod-dp-ase1:
       - group:onqlave-devops@onqlave.com

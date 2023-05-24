@@ -17,7 +17,7 @@
 variable "automation" {
   # tfdoc:variable:source 00-bootstrap
   description = "Automation resources created by the bootstrap stage."
-  type = object({
+  type        = object({
     outputs_bucket = string
   })
 }
@@ -25,7 +25,7 @@ variable "automation" {
 variable "billing_account" {
   # tfdoc:variable:source 00-bootstrap
   description = "Billing account id and organization id ('nnnnnnnn' or null)."
-  type = object({
+  type        = object({
     id              = string
     organization_id = number
   })
@@ -34,7 +34,7 @@ variable "billing_account" {
 variable "custom_adv" {
   description = "Custom advertisement definitions in name => range format."
   type        = map(string)
-  default = {
+  default     = {
     cloud_dns             = "35.199.192.0/19"
     gcp_all               = "10.128.0.0/16"
     gcp_dev               = "10.128.32.0/19"
@@ -50,7 +50,7 @@ variable "custom_adv" {
 variable "custom_roles" {
   # tfdoc:variable:source 00-bootstrap
   description = "Custom roles defined at the org level, in key => id format."
-  type = object({
+  type        = object({
     service_project_network_admin = string
   })
   default = null
@@ -65,7 +65,7 @@ variable "data_dir" {
 variable "dns" {
   description = "Onprem DNS resolvers."
   type        = map(list(string))
-  default = {
+  default     = {
     prod = ["10.0.1.1"]
     dev  = ["10.0.2.1"]
   }
@@ -74,7 +74,7 @@ variable "dns" {
 variable "folder_ids" {
   # tfdoc:variable:source 01-resman
   description = "Folders to be used for the networking resources in folders/nnnnnnnnnnn format. If null, folder will be created."
-  type = object({
+  type        = object({
     networking      = string
     networking-dev  = string
     networking-prod = string
@@ -83,7 +83,7 @@ variable "folder_ids" {
 
 variable "l7ilb_subnets" {
   description = "Subnets used for L7 ILBs."
-  type = map(list(object({
+  type        = map(list(object({
     ip_cidr_range = string
     region        = string
   })))
@@ -102,7 +102,7 @@ variable "l7ilb_subnets" {
 variable "organization" {
   # tfdoc:variable:source 00-bootstrap
   description = "Organization details."
-  type = object({
+  type        = object({
     domain      = string
     id          = number
     customer_id = string
@@ -128,41 +128,42 @@ variable "prefix" {
 
 variable "psa_ranges" {
   description = "IP ranges used for Private Service Access (e.g. CloudSQL)."
-  type = object({
+  type        = object({
     dev = object({
-      ranges = map(string)
+      ranges        = map(string)
       export_routes = optional(bool, false)
       import_routes = optional(bool, false)
     })
     prod = object({
-      ranges = map(string)
+      ranges        = map(string)
       export_routes = optional(bool, false)
       import_routes = optional(bool, false)
     })
   })
   default = {
-     dev = {
-       ranges = {
-         cloudsql     = "10.128.62.0/24"
-#         cloudsql-sqlserver = "10.128.63.0/24"
-       }
+    dev = {
+      ranges = {
+        dev-cp-0-cloudsql = "10.128.63.0/24"
+        dev-dp-0-cloudsql = "10.0.62.0/24"
+        dev-dp-0-redis    = "10.0.63.0/24"
+      }
       export_routes = true
       import_routes = true
-     }
-     prod = {
-       ranges = {
-         cloudsql     = "10.128.94.0/24"
-#         cloudsql-sqlserver = "10.128.95.0/24"
-       }
+    }
+    prod = {
+      ranges = {
+        cloudsql = "10.128.94.0/24"
+        #         cloudsql-sqlserver = "10.128.95.0/24"
+      }
       export_routes = false
       import_routes = false
-     }
+    }
   }
 }
 
 variable "router_onprem_configs" {
   description = "Configurations for routers used for onprem connectivity."
-  type = map(object({
+  type        = map(object({
     adv = object({
       custom  = list(string)
       default = bool
@@ -186,7 +187,7 @@ variable "router_onprem_configs" {
 variable "service_accounts" {
   # tfdoc:variable:source 01-resman
   description = "Automation service accounts in name => email format."
-  type = object({
+  type        = object({
     data-platform-dev    = string
     data-platform-prod   = string
     project-factory-dev  = string
@@ -197,14 +198,14 @@ variable "service_accounts" {
 
 variable "vpn_onprem_configs" {
   description = "VPN gateway configuration for onprem interconnection."
-  type = map(object({
+  type        = map(object({
     adv = object({
       default = bool
       custom  = list(string)
     })
     peer_external_gateway = object({
       redundancy_type = string
-      interfaces = list(object({
+      interfaces      = list(object({
         id         = number
         ip_address = string
       }))

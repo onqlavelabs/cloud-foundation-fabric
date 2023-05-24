@@ -7,8 +7,8 @@ billing_account_id: 01FF42-62CE82-5861FD
 billing_alert:
   amount: 500
   thresholds:
-    current: [0.5, 0.8]
-    forecasted: [0.5, 0.8]
+    current: [ 0.5, 0.8 ]
+    forecasted: [ 0.5, 0.8 ]
   credit_treatment: INCLUDE_ALL_CREDITS
 
 # [opt] DNS zones to be created as children of the environment_dns_zone defined in defaults
@@ -29,31 +29,57 @@ group_iam:
     - roles/compute.admin
     - roles/resourcemanager.projectIamAdmin
     - roles/cloudsql.admin
-    - roles/redis.admin
     - roles/container.admin
-    - roles/iam.serviceAccountUser
     - roles/storage.admin
     - roles/iam.serviceAccountAdmin
     - roles/serviceusage.serviceUsageAdmin
     - roles/artifactregistry.admin
-    - roles/logging.admin
+    - roles/iap.admin
+    - roles/iap.tunnelResourceAccessor
+    - roles/iam.workloadIdentityPoolAdmin
+    - roles/iam.serviceAccountUser
+    - roles/pubsub.admin
+    - roles/firebase.admin
+    - roles/containeranalysis.admin
+    - roles/containersecurity.viewer
+    - roles/monitoring.admin
+
+  onqlave-developers@onqlave.com:
+    - roles/iam.serviceAccountUser
+    - roles/iap.tunnelResourceAccessor
+    - roles/compute.instanceAdmin
+    - roles/container.developer
+    - roles/firebase.developAdmin
+    - roles/pubsub.editor
+    - roles/monitoring.editor
 
 # [opt] Authoritative IAM bindings in role => [principals] format
 # Generally used to grant roles to service accounts external to the project
-# iam:
-#   roles/compute.admin:
-#     - serviceAccount:service-account
+iam:
+  roles/iam.serviceAccountUser:
+    - serviceAccount:onqlave-dev-cp-0-bastion@onqlave-dev-cp-0.iam.gserviceaccount.com
+  roles/iap.tunnelResourceAccessor:
+    - serviceAccount:onqlave-dev-cp-0-bastion@onqlave-dev-cp-0.iam.gserviceaccount.com
+  roles/container.admin:
+    - serviceAccount:onqlave-dev-cp-0-bastion@onqlave-dev-cp-0.iam.gserviceaccount.com
+  roles/compute.instanceAdmin:
+    - serviceAccount:onqlave-dev-cp-0-bastion@onqlave-dev-cp-0.iam.gserviceaccount.com
+  roles/firebase.admin:
+    - serviceAccount:onqlave-cp-0-firebase@onqlave-dev-cp-0.iam.gserviceaccount.com
+  roles/serviceusage.serviceUsageAdmin:
+    - serviceAccount:onqlave-cp-0-firebase@onqlave-dev-cp-0.iam.gserviceaccount.com
 
 # [opt] Service robots and keys they will be assigned as cryptoKeyEncrypterDecrypter
 # in service => [keys] format
 kms_service_agents:
-  compute: [compute]
-  storage: [storage]
+  compute: [ compute ]
+  storage: [ storage ]
 
 # [opt] Labels for the project - merged with the ones defined in defaults
 labels:
   environment: development
   application: controlplane
+  firebase: enabled
 
 # [opt] Org policy overrides defined at project level
 org_policies:
@@ -64,17 +90,17 @@ org_policies:
   #     values:
   #       - projects/onqlave-dev-iac-core-0
   constraints/compute.vmExternalIpAccess:
-      allow:
-        values:
-          - projects/onqlave-dev-cp-0/zones/australia-southeast1-a/instances/onqlave-dev-cp-bastion-0
+    allow:
+      values:
+        - projects/onqlave-dev-cp-0/zones/australia-southeast1-a/instances/onqlave-dev-cp-bastion-0
   constraints/compute.restrictLoadBalancerCreationForTypes:
-      allow:
-        values:
-          - EXTERNAL_HTTP_HTTPS
-          - INTERNAL_HTTP_HTTPS
-          - INTERNAL_TCP_UDP
-          - REGIONAL_INTERNAL_MANAGED_TCP_PROXY
-          - in:INTERNAL
+    allow:
+      values:
+        - EXTERNAL_HTTP_HTTPS
+        - INTERNAL_HTTP_HTTPS
+        - INTERNAL_TCP_UDP
+        - REGIONAL_INTERNAL_MANAGED_TCP_PROXY
+        - in:INTERNAL
 # [opt] Service account to create for the project and their roles on the project
 # in name => [roles] format
 # service_accounts:
@@ -88,6 +114,21 @@ services:
   - storage.googleapis.com
   - stackdriver.googleapis.com
   - compute.googleapis.com
+  - iap.googleapis.com
+  - oslogin.googleapis.com
+  - storage-api.googleapis.com
+  - beyondcorp.googleapis.com
+  - artifactregistry.googleapis.com
+  - iamcredentials.googleapis.com
+  - serviceusage.googleapis.com
+  - networkmanagement.googleapis.com
+  - cloudresourcemanager.googleapis.com
+  - container.googleapis.com
+  - servicenetworking.googleapis.com
+  - firebase.googleapis.com
+  - sqladmin.googleapis.com # Used by Cloud-SQL-Proxy into GKE.
+  - containersecurity.googleapis.com # Used by GKE Vulnerability Scanning
+  - containerscanning.googleapis.com  # Used by Artifact Registry - Container Scanning
 
 # [opt] Roles to assign to the service identities in service => [roles] format
 service_identities_iam:
